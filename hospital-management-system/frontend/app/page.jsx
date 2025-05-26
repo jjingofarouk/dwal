@@ -10,7 +10,7 @@ export default function Home() {
         to log in or register.
       </p>
       <p>
-        Test the backend by visiting{' '}
+        Test Firestore by visiting{' '}
         <a href="/api/health" className="text-blue-600 underline">
           /api/health
         </a>
