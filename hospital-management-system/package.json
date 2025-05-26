@@ -5,9 +5,7 @@
     "dev": "cd frontend && next dev",
     "build": "cd frontend && next build",
     "start": "cd frontend && next start",
-    "functions:serve": "cd functions && firebase emulators:start --only functions",
-    "functions:deploy": "cd functions && firebase deploy --only functions",
-    "install:all": "npm install && cd functions && npm install"
+    "install": "npm install"
   },
   "dependencies": {
     "firebase": "^10.12.2",
