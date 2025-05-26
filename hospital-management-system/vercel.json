@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "frontend/next.config.js",
+      "use": "@vercel/next"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://us-central1-YOUR_FIREBASE_PROJECT_ID.cloudfunctions.net/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ]
+}
