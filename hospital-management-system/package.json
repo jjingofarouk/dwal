@@ -1,11 +1,13 @@
 {
-  "name": "hospital-management-frontend",
+  "name": "hospital-management-system",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "cd frontend && next dev",
+    "build": "cd frontend && next build",
+    "start": "cd frontend && next start",
+    "functions:serve": "cd functions && firebase emulators:start --only functions",
+    "functions:deploy": "cd functions && firebase deploy --only functions",
+    "install:all": "npm install && cd functions && npm install"
   },
   "dependencies": {
     "firebase": "^10.12.2",
