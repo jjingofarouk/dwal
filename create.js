@@ -733,19 +733,6 @@ const structure = {
             'fixed-assets.svg',
           ],
         },
-        files: [
-          'next.config.js',
-          'package.json',
-          'tailwind.config.js',
-          'postcss.config.js',
-          'tsconfig.json',
-          'README.md',
-          '.env.local',
-          '.gitignore',
-          '.eslintrc.json',
-          '.prettierrc',
-          'jest.config.js',
-        ],
       },
     },
     functions: {
@@ -784,91 +771,104 @@ const structure = {
         utilities: ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
         'mkt-referral': ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
         substore: ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
-        cssd: ['create.js', 'd', 'delete.js', 'get.js', 'list.js', 'update.js'],
+        cssd: ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
         incentive: ['create.js', 'get.js', 'list.js'],
-        reports: ['generate.js', 'get', 'r', 'list.js'],
-          verification: ['create.js', 'd', 'delete.js', 'v', 'get.js', 'v', 'list.js', 'update.js'],
-          'fixed-assets': ['create.js', 'f', 'a', 'delete.js', 'f', 'get', 'list.js', 'f', 'update.js'],
-            },
-          },
-        config: ['firebase.js'],
-        },
-        middleware: [
-          'authMiddleware.js',
-          'errorMiddleware.js',
-          'validationMiddleware.js',
-          'roleMiddleware.js',
-          'middleware.js'],
-        ],
-        utils: [
-          'logger.js',
-          'list.js', 'e', 'errorHandler.js',
-          'jwt.js', 'j', 'v', 'validators.js',
-          'utils.js',
-          'constants.js',
-        ],
-        files: ['index.js'],
+        verification: ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
+        'fixed-assets': ['create.js', 'delete.js', 'get.js', 'list.js', 'update.js'],
       },
-      docs: ['api.md', 'setup.md', 'deployment.md'],
-      files: [
-        'firebase.json',
-        '.firebaserc',
-        'vercel.json',
-        'package.json',
-        '.env',
-        '.env.example',
-        '.gitignore',
-        '.eslintrc.json',
-        '.prettierrc',
-        'jest.config.js',
-        'README.md',
-        'docker-compose.yml',
-        'Dockerfile',
+      config: ['firebase.js'],
+      middleware: [
+        'authMiddleware.js',
+        'errorMiddleware.js',
+        'validationMiddleware.js',
+        'roleMiddleware.js',
+        'middleware.js'
       ],
+      utils: [
+        'logger.js',
+        'errorHandler.js',
+        'jwt.js',
+        'validators.js',
+        'utils.js',
+        'constants.js',
+      ],
+      files: ['index.js'],
     },
-  },
+    docs: ['api.md', 'setup.md', 'deployment.md'],
+    files: [
+      'firebase.json',
+      '.firebaserc',
+      'vercel.json',
+      'package.json',
+      '.env',
+      '.env.example',
+      '.gitignore',
+      '.eslintrc.json',
+      '.prettierrc',
+      'jest.config.js',
+      'README.md',
+      'docker-compose.yml',
+      'Dockerfile',
+    ],
+  }
 };
 
 async function createStructure(basePath, structure) {
-  for (const [key, value] of Object.entries(structure)) {
-    const currentPath = path.join(basePath, key);
+  try {
+    for (const [key, value] of Object.entries(structure)) {
+      const currentPath = path.join(basePath, key);
 
-    if (Array.isArray(value)) {
-      await fs.mkdir(basePath, { recursive: true }).catch((err) => {
-        console.error(`Error creating directory ${basePath}:`, err.message);
-      });
-      for (const file of value) {
-        const filePath = path.join(basePath, file);
-        console.log(`Creating file: ${filePath}`);
-        await fs.writeFile(filePath, '', { flag: 'wx' }).catch((err) => {
-          if (err.code !== 'EEXIST') {
-            console.error(`Error creating file ${filePath}:`, err.message);
-          }
-        });
-      }
-    } else if (typeof value === 'object' && value !== null) {
-      if (key !== 'files') {
-        console.log(`Creating directory: ${currentPath}`);
-        await fs.mkdir(currentPath, { recursive: true }).catch((err) => {
-          console.error(`Error creating directory ${currentPath}:`, err.message);
-        });
-      }
-      if (value.files) {
-        await fs.mkdir(currentPath, { recursive: true }).catch((err) => {
-          console.error(`Error creating directory ${currentPath}:`, err.message);
-        });
-        for (const file of value.files) {
-          const filePath = path.join(currentPath, file);
-          console.log(`Creating file: ${filePath}`);
-          await fs.writeFile(filePath, '', { flag: 'wx' }).catch((err) => {
+      if (Array.isArray(value)) {
+        // Ensure parent directory exists
+        await fs.mkdir(basePath, { recursive: true });
+        
+        // Create all files in the array
+        for (const file of value) {
+          const filePath = path.join(basePath, file);
+          try {
+            await fs.writeFile(filePath, '', { flag: 'wx' });
+            console.log(`Created file: ${filePath}`);
+          } catch (err) {
             if (err.code !== 'EEXIST') {
               console.error(`Error creating file ${filePath}:`, err.message);
             }
-          });
+          }
         }
+      } else if (typeof value === 'object' && value !== null) {
+        // Create directory if it's not a 'files' key
+        if (key !== 'files') {
+          try {
+            await fs.mkdir(currentPath, { recursive: true });
+            console.log(`Created directory: ${currentPath}`);
+          } catch (err) {
+            if (err.code !== 'EEXIST') {
+              console.error(`Error creating directory ${currentPath}:`, err.message);
+            }
+          }
+        }
+
+        // Handle special 'files' property if it exists
+        if (value.files && Array.isArray(value.files)) {
+          for (const file of value.files) {
+            const filePath = path.join(currentPath, file);
+            try {
+              await fs.writeFile(filePath, '', { flag: 'wx' });
+              console.log(`Created file: ${filePath}`);
+            } catch (err) {
+              if (err.code !== 'EEXIST') {
+                console.error(`Error creating file ${filePath}:`, err.message);
+              }
+            }
+          }
+        }
+
+        // Recursively process the nested structure
+        await createStructure(currentPath, value);
       }
-      await createStructure(currentPath, value);
     }
+  } catch (err) {
+    console.error(`Error in createStructure at ${basePath}:`, err.message);
+    throw err;
   }
 }
 
@@ -879,6 +879,7 @@ async function main() {
     console.log('Project structure created successfully!');
   } catch (err) {
     console.error('Error creating project structure:', err.message);
+    process.exit(1);
   }
 }
 
